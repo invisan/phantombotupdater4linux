@@ -27,20 +27,25 @@ curl -s https://api.github.com/repos/PhantomBot/PhantomBot/releases/latest \
 # Check if PhantomBot is running
 running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
 
-
 if [ -z "$running" ]; then
                 echo "Bot seems to be not running. Continuing with update."
 else
-                echo "Pid found. Stopping Bot."
-                systemctl stop phantombot
-                sleep 15
+                # Check if PhantomBot Service is installed
+                service="/etc/systemd/system/phantombot.service"
+                if [ -f "$service" ]; then
+                        echo "Pid found. Stopping Bot."
+                        systemctl stop phantombot &>> ./updater.log
+                        sleep 15
+                else
+                        echo "Service not installed. Continuing with kill."
+                fi
                 # Check again if Bot is still running
                 running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
                         if [ -z "$running" ]; then
                                 echo "Bot stopped. Continuing with update."
                         else
-                                echo "Seems systemctl wasnt working. Trying kill."
-                                kill $(pgrep -f PhantomBot)
+                                echo "Seems service wasnt running or systemctl wasnt working. Trying kill."
+                                #kill $(pgrep -f PhantomBot)
                                 echo "Waiting for 15 Seconds to check if the Bot is stopped."
                                 sleep 15
                                 # Check again if Bot is still running
@@ -49,7 +54,7 @@ else
                                                 echo "Bot stopped. Continuing with update."
                                         else
                                                 echo "Seems kill did not work. Trying skill -9."
-                                                skill -9 $running
+                                                #skill -9 $running
                                                 sleep 15
                                                 echo "Waiting for 15 Seconds to check if the Bot has stopped."
                                                 running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
