@@ -24,6 +24,54 @@ curl -s https://api.github.com/repos/PhantomBot/PhantomBot/releases/latest \
 | tr -d \" \
 | wget -qi -
 
+# Check if PhantomBot is running
+running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
+
+
+if [ -z "$running" ]; then
+                echo "Bot seems to be not running. Continuing with update."
+else
+                echo "Pid found. Stopping Bot."
+                systemctl stop phantombot
+                sleep 15
+                # Check again if Bot is still running
+                running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
+                        if [ -z "$running" ]; then
+                                echo "Bot stopped. Continuing with update."
+                        else
+                                echo "Seems systemctl wasnt working. Trying kill."
+                                kill $(pgrep -f PhantomBot)
+                                echo "Waiting for 15 Seconds to check if the Bot is stopped."
+                                sleep 15
+                                # Check again if Bot is still running
+                                running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
+                                        if [ -z "$running" ]; then
+                                                echo "Bot stopped. Continuing with update."
+                                        else
+                                                echo "Seems kill did not work. Trying skill -9."
+                                                skill -9 $running
+                                                sleep 15
+                                                echo "Waiting for 15 Seconds to check if the Bot has stopped."
+                                                running=$(ps -ef | grep '[P]hantomBot' | awk '{print $2}')
+                                                        if [ -z "$running" ]; then
+                                                                echo "Bot stopped. Continuing with update."
+                                                        else
+                                                                FILE="./updater.log"
+                                                                        if [ -f "$FILE" ]; then
+                                                                                echo "File exists. Continuing." >> /dev/null
+                                                                        else
+                                                                                touch ./updater.log
+                                                                        fi;
+                                                                        datum=$(date +'%x %X')
+                                                                        log=$(echo " Seems the Bot could not be stopped succesfully. Exiting Script. Please stop the Bot manually. PID of the Process is: $running")
+                                                                        string=$datum$log
+                                                                        echo $string >> ./updater.log
+                                                                exit
+                                                        fi
+                                        fi
+                        fi
+fi
+
 
 # Remove the old phantombot-old Folder
 rm -R ./phantombot-old
