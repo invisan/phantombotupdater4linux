@@ -8,10 +8,9 @@ Thanks to steinwaywhw for the Download code (https://gist.github.com/steinwaywhw
 
 Required Programs for this to work:
 
-Unzip 
-curl
+curl, cd, mv, rm, unzip, chmod, wget and cp
 
-apt-get install curl unzip
+apt-get install curl unzip wget
 
 
 Installation:
