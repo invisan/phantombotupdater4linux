@@ -1,4 +1,6 @@
 # !/bin/bash
+# PhantomBotUpdateScript by InviSan
+
 
 if [ -z "$1" ]; then
        echo "Config file not set. Using sample.cfg"
