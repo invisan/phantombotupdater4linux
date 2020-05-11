@@ -12,3 +12,11 @@ Unzip
 curl
 
 apt-get install curl unzip
+
+
+Installation:
+
+Just copy the Files over to the directory where your PhantomBot should be located. 
+You might choose a different Location though but you have to configure the settings with the sample.cfg then
+
+If you want to run more then one Bot rename the Sample.cfg and run the script by using ./update.sh yourconfig.cfg
