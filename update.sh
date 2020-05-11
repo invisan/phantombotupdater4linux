@@ -1,6 +1,6 @@
 # !/bin/bash
-# PhantomBotUpdateScript by InviSan
-
+# PhantomBot Update script by Invisan
+# v0.6
 
 if [ -z "$1" ]; then
        echo "Config file not set. Using sample.cfg"
@@ -28,9 +28,10 @@ path=$(grep -Po 'path="\K[^"]*' $conf)
 user=$(grep -Po 'user="\K[^"]*' $conf)
 build=$(grep -Po 'build="\K[^"]*' $conf)
 port=$(grep -Po 'port="\K[^"]*' $conf)
+service=$(grep -Po 'service"\K[^"]*' $conf)
 
-
-installed=$(unzip -p $path/PhantomBot.jar "META-INF/MANIFEST.MF" | grep -oP "(?<=Implementation-Version: )(\d+|\.)*")
+version=$(unzip -p $path/PhantomBot.jar "META-INF/MANIFEST.MF" | grep "Implementation-Version")
+installed=$(echo $version | cut -d " " -f 2)
 
 if [ $build = "stable" ]; then
 wget https://raw.githubusercontent.com/PhantomBot/PhantomBot/master/build.xml
@@ -38,10 +39,13 @@ newest=$(grep -Po '<property name="version".*?value="\K[^"]*' build.xml)
 rm ./build.xml
 else
         if [ $build = "nightly" ]; then
+                installed=$(echo $installed | cut -d "-" -f 3)
                 wget https://github.com/PhantomBot/nightly-build/raw/master/PhantomBot-nightly-lin.zip -O phantombot.zip
                 unzip ./phantombot.zip
                 mv ./PhantomBot* nightly
-                newest=$(unzip -p nightly/PhantomBot.jar "META-INF/MANIFEST.MF" | grep -oP "(?<=Implementation-Version: )(\d+|\.|\-|\d+|\-\d+)*")
+                newest=$(unzip -p nightly/PhantomBot.jar "META-INF/MANIFEST.MF" | grep "Implementation-Version")
+                newest=$(echo $newest | cut -d " " -f 2)
+                newest=$(echo $newest | cut -d "-" -f 3)
         else
                 if [ $build = "pbotde" ]; then
                         wget https://raw.githubusercontent.com/PhantomBotDE/PhantomBotDE/master/build.xml
@@ -52,7 +56,6 @@ else
                 fi
         fi
 fi
-
 
 echo "Installed Version is:" $installed
 echo "Newest Version is:" $newest
