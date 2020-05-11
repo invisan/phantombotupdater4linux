@@ -1,21 +1,22 @@
 # !/bin/bash
-# PhantomBot Update script by Invisan
-# v0.6
+# PhantomBot Update Script by InviSan
+# v0.7
+
 
 if [ -z "$1" ]; then
        echo "Config file not set. Using sample.cfg"
-        conf="sample.cfg"
+	conf="sample.cfg"
 else
-        conf=$1
-        echo "Config found."
+	conf=$1
+	echo "Config found."
 fi
 
 # Check if conf file present
 if [ -f "$conf" ]; then
-        echo "File exists. Continuing."
+	echo "File exists. Continuing."
 else
-        echo "File not found. Exiting."
-        exit
+	echo "File not found. Exiting."
+	exit
 fi
 
 
@@ -67,26 +68,26 @@ else
 
 # Download of the latest Version of PhantomBot from Github
 if [ $build = "stable" ]; then
-
-        curl -s https://api.github.com/repos/PhantomBot/PhantomBot/releases/latest \
-        | grep "browser_download_url.*zip" \
+	
+	curl -s https://api.github.com/repos/PhantomBot/PhantomBot/releases/latest \
+	| grep "browser_download_url.*zip" \
         | cut -d : -f 2,3 \
         | tr -d \" \
         | wget -qi - -O phantombot.zip
 
-else
-        if [ $build = "pbotde" ]; then
+else 
+	if [ $build = "pbotde" ]; then
 
-        curl -s https://api.github.com/repos/PhantomBotDE/PhantomBotDE/releases/latest \
-        | grep "browser_download_url.*zip" \
+	curl -s https://api.github.com/repos/PhantomBotDE/PhantomBotDE/releases/latest \
+	| grep "browser_download_url.*zip" \
         | cut -d : -f 2,3 \
         | tr -d \" \
         | wget -qi - -O phantombot.zip
 
 
-        else
-                echo "Neither pbotde or stable specified. Must be nightly or something else."
-        fi
+	else
+		echo "Neither pbotde or stable specified. Must be nightly or something else."
+	fi
 fi
 
 
@@ -94,36 +95,36 @@ fi
 running=$(lsof -t -i :$port -s TCP:LISTEN)
 
 if [ -z "$running" ]; then
-                echo "Bot seems to be not running. Continuing with update."
+		echo "Bot seems to be not running. Continuing with update."
 else
-                echo "Pid found. Stopping Bot."
-                systemctl stop phantombot
-                # Check again if Bot is still running
-                running=$(lsof -t -i :$port -s TCP:LISTEN)
-                        if [ -z "$running" ]; then
-                                echo "Bot stopped. Continuing with update."
-                        else
-                                echo "Seems systemctl wasnt working. Trying kill."
-                                kill $(pgrep -f PhantomBot)
-                                # Check again if Bot is still running
-                                running=$(lsof -t -i :$port -s TCP:LISTEN)
-                                        if [ -z "$running" ]; then
-                                                echo "Bot stopped. Continuing with update."
-                                        else
-                                                echo "Seems kill did not work. Trying skill -9."
-                                                skill -9 $running
-                                        fi
-                        fi
+		echo "Pid found. Stopping Bot."
+		systemctl stop phantombot
+		# Check again if Bot is still running
+		running=$(lsof -t -i :$port -s TCP:LISTEN)
+			if [ -z "$running" ]; then
+				echo "Bot stopped. Continuing with update."
+			else
+				echo "Seems systemctl wasnt working. Trying kill."
+				kill $(pgrep -f PhantomBot)
+				# Check again if Bot is still running
+				running=$(lsof -t -i :$port -s TCP:LISTEN)
+					if [ -z "$running" ]; then
+						echo "Bot stopped. Continuing with update."
+					else
+						echo "Seems kill did not work. Trying skill -9."
+						skill -9 $running
+					fi
+			fi
 fi
 
 if [ -d "$path" ]; then
 
-        if [ -d "$path-old" ]; then
+	if [ -d "$path-old" ]; then
 
-                # Remove the old phantombot-old Folder
-                rm -R ./$path-old
-
-        fi
+		# Remove the old phantombot-old Folder
+		rm -R ./$path-old
+	
+	fi
 
 # Move phantombot Folder to phantombot-old
 mv ./$path $path-old
@@ -132,7 +133,7 @@ fi
 
 if [ $build = "nightly" ]; then
 
-        mv nightly $path
+	mv nightly $path
 
 else
 
@@ -145,7 +146,7 @@ mv ./PhantomBot*/ $path
 fi
 
 if [ -d "$path-old" ]; then
-
+	
 # Copy the Old Configs
 cp -R ./$path-old/config/ ./$path/
 cp -R ./$path-old/scripts/lang/custom/ ./$path/scripts/lang/
@@ -153,11 +154,21 @@ cp -R ./$path-old/scripts/lang/custom/ ./$path/scripts/lang/
 fi
 
 # Make the sh files executable
-chmod u+x $home/$path/launch-service.sh
+chmod u+x $home/$path/launch-service.sh 
 chmod u+x $home/$path/launch.sh
 chmod u+x $home/$path/java-runtime-linux/bin/java
 
 # Remove the Zip File
 rm ./phantombot.zip
+
+fi
+
+if [ $service = "disabled" ]; then
+
+	./$path/launch.sh
+
+else
+
+	./$path/launch-service.sh
 
 fi
