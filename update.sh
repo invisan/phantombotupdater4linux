@@ -29,7 +29,7 @@ path=$(grep -Po 'path="\K[^"]*' $conf)
 user=$(grep -Po 'user="\K[^"]*' $conf)
 build=$(grep -Po 'build="\K[^"]*' $conf)
 port=$(grep -Po 'port="\K[^"]*' $conf)
-service=$(grep -Po 'service"\K[^"]*' $conf)
+service=$(grep -Po 'service="\K[^"]*' $conf)
 
 version=$(unzip -p $path/PhantomBot.jar "META-INF/MANIFEST.MF" | grep "Implementation-Version")
 installed=$(echo $version | cut -d " " -f 2)
